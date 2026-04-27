@@ -1,1 +1,1 @@
-
+redirect: /dornow/index.html
