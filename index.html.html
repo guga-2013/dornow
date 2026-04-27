@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DorNow — Entenda sua dor com Inteligência Artificial</title>
+<meta name="description" content="Sentindo dor? A IA do DorNow analisa sua dor, explica as causas e diz quando buscar ajuda médica — em segundos, gratuitamente.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080d0a;--s:#0f1711;--s2:#131d15;--s3:#172019;
+  --b:rgba(100,190,120,.1);--b2:rgba(100,190,120,.2);--b3:rgba(100,190,120,.3);
+  --a:#4ecb71;--a2:#2ea84f;--a3:#1d7a38;
+  --as:rgba(78,203,113,.07);--as2:rgba(78,203,113,.13);
+  --t:#e2ede5;--t2:#7fa888;--t3:#3d5e44;--t4:#1f3324;
+  --red:#e05555;--amber:#d4a843;--gold:#c9973a;
+  --r:14px;--r2:10px;--r3:20px
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow-x:hidden}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--t4);border-radius:2px}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(8,13,10,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--b)}
+.logo{font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--a);letter-spacing:-.5px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--a);animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-link{background:none;border:none;color:var(--t2);font-size:13px;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;letter-spacing:.02em}
+.nav-link:hover{color:var(--t);background:var(--as)}
+.nav-link.active{color:var(--a)}
+.nav-cta{background:var(--a);color:#04110a;border:none;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;margin-left:8px}
+.nav-cta:hover{background:#5fe080;transform:translateY(-1px)}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;padding-top:64px}
+.page.active{display:block}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:1}}
+.anim-1{animation:fadeUp .6s ease both}
+.anim-2{animation:fadeUp .6s .1s ease both}
+.anim-3{animation:fadeUp .6s .2s ease both}
+.anim-4{animation:fadeUp .6s .3s ease both}
+.anim-5{animation:fadeUp .6s .4s ease both}
+
+/* ══════════════════════════════════
+   HOME PAGE
+══════════════════════════════════ */
+.hero{min-height:calc(100vh - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px 80px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.hero-glow{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(ellipse,rgba(46,168,79,.06) 0%,transparent 65%);border-radius:50%}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(78,203,113,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(78,203,113,.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%)}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--as2);border:1px solid var(--b2);border-radius:100px;padding:6px 16px;font-size:12px;color:var(--a);letter-spacing:.06em;text-transform:uppercase;font-weight:500;margin-bottom:28px}
+h1.hero-h{font-family:'Fraunces',serif;font-size:clamp(42px,7vw,82px);font-weight:300;line-height:1.05;letter-spacing:-3px;margin-bottom:22px}
+h1.hero-h em{color:var(--a);font-style:italic}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--t2);max-width:500px;line-height:1.75;margin-bottom:44px;font-weight:300}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+.btn-primary{background:var(--a);color:#04110a;border:none;border-radius:var(--r2);padding:15px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:9px;transition:all .2s}
+.btn-primary:hover{background:#5fe080;transform:translateY(-2px);box-shadow:0 12px 32px rgba(78,203,113,.2)}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--b2);border-radius:var(--r2);padding:15px 24px;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-ghost:hover{border-color:var(--a);color:var(--a)}
+.hero-note{font-size:12px;color:var(--t3)}
+
+/* stats bar */
+.stats-bar{display:flex;gap:0;border:1px solid var(--b);border-radius:var(--r);overflow:hidden;max-width:520px;margin:56px auto 0}
+.stat{flex:1;text-align:center;padding:18px 16px;border-right:1px solid var(--b)}
+.stat:last-child{border-right:none}
+.stat-val{font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--t);letter-spacing:-1px}
+.stat-label{font-size:11px;color:var(--t3);margin-top:2px;letter-spacing:.03em}
+
+/* how it works */
+.section{padding:80px 24px}
+.section-inner{max-width:900px;margin:0 auto}
+.section-tag{display:inline-block;font-size:11px;font-weight:500;color:var(--a);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:300;letter-spacing:-1.5px;margin-bottom:12px}
+.section-sub{font-size:15px;color:var(--t2);max-width:480px;line-height:1.7}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.how-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:28px 24px;transition:border-color .2s}
+.how-card:hover{border-color:var(--b2)}
+.how-num{font-family:'Fraunces',serif;font-size:52px;font-weight:300;color:var(--a);opacity:.2;line-height:1;margin-bottom:16px}
+.how-card-title{font-size:16px;font-weight:500;margin-bottom:8px}
+.how-card-desc{font-size:13px;color:var(--t2);line-height:1.65}
+
+/* features */
+.features-section{background:var(--s);border-top:1px solid var(--b);border-bottom:1px solid var(--b);padding:80px 24px}
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:44px}
+.feat-card{background:var(--bg);border:1px solid var(--b);border-radius:var(--r);padding:24px;display:flex;gap:16px;align-items:flex-start}
+.feat-icon{width:40px;height:40px;border-radius:10px;background:var(--as2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.feat-title{font-size:15px;font-weight:500;margin-bottom:5px}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* ══════════════════════════════════
+   ANALISAR PAGE
+══════════════════════════════════ */
+.app-wrap{max-width:780px;margin:0 auto;padding:48px 24px 100px}
+.app-header{text-align:center;margin-bottom:44px}
+.app-title{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:300;letter-spacing:-1.5px;margin-bottom:8px}
+.app-sub{font-size:15px;color:var(--t2)}
+
+/* step indicator */
+.steps-indicator{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:44px}
+.step-ind{display:flex;align-items:center;gap:0}
+.step-dot{width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--t3);transition:all .3s;background:var(--s)}
+.step-dot.done{background:var(--a2);border-color:var(--a2);color:#fff}
+.step-dot.active{background:var(--as2);border-color:var(--a);color:var(--a);box-shadow:0 0 0 4px rgba(78,203,113,.1)}
+.step-line{width:48px;height:1px;background:var(--b2);margin:0 4px}
+.step-label{font-size:11px;color:var(--t3);text-align:center;margin-top:5px;letter-spacing:.03em}
+
+/* body map */
+.card-block{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:28px;margin-bottom:16px}
+.block-label{font-size:11px;font-weight:500;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
+.body-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.body-btn{background:var(--s2);border:1px solid var(--b);border-radius:var(--r2);padding:14px 8px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'DM Sans',sans-serif}
+.body-btn:hover{background:var(--as2);border-color:var(--b2);transform:translateY(-2px)}
+.body-btn.active{background:var(--as2);border-color:var(--a);box-shadow:0 0 0 2px var(--a)}
+.body-icon{font-size:20px}
+.body-name{font-size:11px;color:var(--t2);letter-spacing:.02em}
+.body-btn.active .body-name{color:var(--a)}
+
+/* intensity */
+.intensity-row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.int-btn{width:42px;height:42px;border-radius:9px;border:1px solid var(--b);background:var(--s2);color:var(--t2);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.int-btn:hover{border-color:var(--b2)}
+.int-btn.active{background:var(--a);color:#04110a;border-color:var(--a)}
+.int-desc{font-size:12px;color:var(--t3);text-align:center;margin-top:10px;min-height:18px}
+
+/* photo */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.photo-opt{background:var(--s2);border:1px solid var(--b);border-radius:var(--r2);padding:22px 16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;font-family:'DM Sans',sans-serif;color:var(--t2);font-size:13px}
+.photo-opt:hover{border-color:var(--b2);color:var(--a);background:var(--as)}
+.photo-opt-icon{font-size:26px}
+.preview-wrap{margin-top:14px;display:none;border-radius:var(--r2);overflow:hidden;border:1px solid var(--b)}
+.preview-wrap img{width:100%;max-height:200px;object-fit:cover;display:block}
+.preview-cap{font-size:12px;color:var(--a);text-align:center;padding:8px;background:var(--as2)}
+
+/* analyze btn */
+.analyze-wrap{text-align:center;display:none}
+.analyze-wrap.show{display:block}
+.analyze-btn{background:var(--a);color:#04110a;border:none;border-radius:var(--r2);padding:17px 48px;font-size:16px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:10px;width:100%;max-width:420px;justify-content:center;transition:all .2s;margin-top:4px}
+.analyze-btn:hover{background:#5fe080}
+.analyze-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* loading */
+.loading-wrap{display:none;text-align:center;padding:48px 24px}
+.loading-wrap.show{display:block}
+.spinner{width:44px;height:44px;margin:0 auto 20px;border:2px solid var(--b2);border-top-color:var(--a);border-radius:50%;animation:spin .8s linear infinite}
+.loading-steps{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:16px}
+.ls{font-size:13px;color:var(--t3);opacity:0;transition:opacity .4s}
+.ls.on{opacity:1;color:var(--a)}
+
+/* result */
+.result-wrap{display:none}
+.result-wrap.show{display:block;animation:fadeIn .5s ease}
+.result-head{background:var(--s);border:1px solid var(--b);border-radius:var(--r) var(--r) 0 0;padding:24px 28px;border-bottom:none}
+.result-badge{display:inline-flex;align-items:center;gap:6px;background:var(--as2);border:1px solid var(--b2);border-radius:100px;padding:4px 12px;font-size:11px;color:var(--a);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;font-weight:500}
+.result-title{font-family:'Fraunces',serif;font-size:26px;font-weight:300;letter-spacing:-.5px;margin-bottom:4px}
+.result-subtitle{font-size:14px;color:var(--t2)}
+.result-body{background:var(--s2);border:1px solid var(--b);border-radius:0 0 var(--r) var(--r);padding:28px;margin-bottom:16px}
+.result-sec{margin-bottom:22px}
+.result-sec:last-child{margin-bottom:0}
+.result-sec-label{font-size:11px;color:var(--a);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;font-weight:500}
+.result-text{font-size:14px;color:var(--t2);line-height:1.7}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--as);border:1px solid var(--b2);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--a)}
+.chip-red{background:rgba(224,85,85,.08);border:1px solid rgba(224,85,85,.2);color:var(--red)}
+
+/* paywall */
+.paywall{background:var(--s);border:1px solid var(--amber);border-radius:var(--r);padding:32px 28px;text-align:center;position:relative;overflow:hidden;margin-bottom:16px}
+.paywall::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.pw-icon{font-size:30px;margin-bottom:12px}
+.pw-title{font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--amber);margin-bottom:8px}
+.pw-desc{font-size:14px;color:var(--t2);margin-bottom:22px;line-height:1.6}
+.pw-feats{display:flex;flex-direction:column;gap:9px;text-align:left;margin-bottom:26px}
+.pw-feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--t2)}
+.pw-check{color:var(--amber);flex-shrink:0;margin-top:2px}
+.pw-btn{background:var(--amber);color:#1a0f00;border:none;border-radius:var(--r2);padding:14px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:opacity .2s}
+.pw-btn:hover{opacity:.88}
+.pw-price{font-size:12px;color:var(--t3);margin-top:12px}
+.pw-price strong{color:var(--amber)}
+.retry-btn{background:transparent;color:var(--t2);border:1px solid var(--b2);border-radius:var(--r2);padding:13px 24px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:all .2s}
+.retry-btn:hover{border-color:var(--a);color:var(--a)}
+
+/* hidden inputs */
+#cam-in,#file-in{display:none}
+
+/* ══════════════════════════════════
+   GUIAS SEO PAGE
+══════════════════════════════════ */
+.guides-wrap{max-width:900px;margin:0 auto;padding:48px 24px 100px}
+.guides-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:36px}
+.guide-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:26px;cursor:pointer;transition:all .2s}
+.guide-card:hover{border-color:var(--b2);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.gc-icon{font-size:28px;margin-bottom:14px}
+.gc-title{font-size:16px;font-weight:500;color:var(--t);margin-bottom:6px}
+.gc-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px}
+.gc-tag{display:inline-block;font-size:11px;font-weight:500;background:var(--as2);border:1px solid var(--b2);color:var(--a);border-radius:100px;padding:3px 12px}
+
+/* guide detail */
+.guide-detail{display:none;max-width:760px;margin:0 auto;padding:48px 24px 100px}
+.guide-detail.show{display:block;animation:fadeIn .4s ease}
+.breadcrumb{font-size:12px;color:var(--t3);margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:var(--a);text-decoration:none;cursor:pointer}
+.breadcrumb-sep{color:var(--t4)}
+.guide-h1{font-family:'Fraunces',serif;font-size:clamp(30px,5vw,52px);font-weight:300;line-height:1.12;letter-spacing:-1.5px;margin-bottom:16px}
+.guide-h1 em{color:var(--a);font-style:italic}
+.guide-intro{font-size:17px;color:var(--t2);margin-bottom:36px;line-height:1.75;font-weight:300;max-width:600px}
+.cta-box{background:var(--s);border:1px solid var(--b2);border-radius:var(--r);padding:24px 28px;margin-bottom:44px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.cta-box-text p{font-size:15px;color:var(--t2)}
+.cta-box-text strong{color:var(--t);display:block;font-size:17px;margin-bottom:4px}
+.guide-h2{font-family:'Fraunces',serif;font-size:24px;font-weight:300;letter-spacing:-.5px;margin:40px 0 14px;color:var(--t)}
+.guide-h3{font-size:16px;font-weight:500;margin:22px 0 8px;color:var(--t)}
+.guide-p{color:var(--t2);margin-bottom:14px;font-size:15px;line-height:1.75}
+.guide-ul{color:var(--t2);padding-left:20px;margin-bottom:14px}
+.guide-ul li{margin-bottom:7px;font-size:15px;line-height:1.65}
+.card-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0 32px}
+.mini-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px}
+.mini-icon{font-size:20px;margin-bottom:8px}
+.mini-title{font-size:13px;font-weight:500;color:var(--t);margin-bottom:5px}
+.mini-desc{font-size:12px;color:var(--t2);line-height:1.55;margin:0}
+.alert-g{background:rgba(224,85,85,.07);border:1px solid rgba(224,85,85,.18);border-radius:12px;padding:18px 20px;margin:22px 0}
+.alert-g-title{color:var(--red);font-weight:500;font-size:14px;margin-bottom:8px}
+.alert-g ul{color:rgba(224,85,85,.8);padding-left:18px}
+.alert-g li{margin-bottom:6px;font-size:14px}
+.faq-item{border-bottom:1px solid var(--b);padding:18px 0}
+.faq-q{font-size:15px;font-weight:500;color:var(--t);margin-bottom:8px}
+.faq-a{font-size:14px;color:var(--t2);margin:0}
+
+/* ══════════════════════════════════
+   EBOOK PAGE
+══════════════════════════════════ */
+.ebook-wrap{max-width:880px;margin:0 auto;padding:48px 24px 100px}
+.ebook-hero{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center;margin-bottom:80px}
+.ebook-cover{background:var(--s);border:1px solid var(--b2);border-radius:var(--r3);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.ebook-cover::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--a),transparent)}
+.ebook-cover-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(78,203,113,.08),transparent 70%);pointer-events:none}
+.ebook-title-cover{font-family:'Fraunces',serif;font-size:22px;font-weight:400;line-height:1.3;color:var(--t);margin-bottom:10px;letter-spacing:-.5px}
+.ebook-title-cover em{color:var(--a);font-style:italic}
+.ebook-brand{font-size:12px;font-weight:500;color:var(--a);letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
+.ebook-pages-tag{display:inline-block;font-size:11px;color:var(--t3);background:var(--s2);border:1px solid var(--b);border-radius:100px;padding:4px 14px;margin-top:16px}
+.ebook-content h2{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,38px);font-weight:300;letter-spacing:-1.5px;margin-bottom:14px}
+.ebook-content h2 em{color:var(--a);font-style:italic}
+.ebook-content p{color:var(--t2);font-size:15px;line-height:1.75;margin-bottom:18px}
+.ebook-price-row{display:flex;align-items:baseline;gap:12px;margin:24px 0}
+.price-main{font-family:'Fraunces',serif;font-size:44px;font-weight:400;color:var(--t);letter-spacing:-2px}
+.price-old{font-size:18px;color:var(--t3);text-decoration:line-through}
+.price-save{font-size:12px;color:var(--a);background:var(--as2);border:1px solid var(--b2);border-radius:100px;padding:3px 10px;font-weight:500}
+.chapters-section{margin-top:64px}
+.chapters-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px}
+.chapter-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;transition:border-color .2s}
+.chapter-card:hover{border-color:var(--b2)}
+.ch-num{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:var(--a);opacity:.5;flex-shrink:0;line-height:1;margin-top:2px}
+.ch-title{font-size:14px;font-weight:500;color:var(--t);margin-bottom:4px}
+.ch-desc{font-size:12px;color:var(--t2);line-height:1.55}
+.ebook-guarantee{background:var(--s);border:1px solid var(--b2);border-radius:var(--r);padding:24px;text-align:center;margin-top:32px}
+.guarantee-icon{font-size:28px;margin-bottom:10px}
+.guarantee-title{font-size:15px;font-weight:500;color:var(--t);margin-bottom:6px}
+.guarantee-desc{font-size:13px;color:var(--t2)}
+
+/* ══════════════════════════════════
+   PLANOS PAGE
+══════════════════════════════════ */
+.plans-wrap{max-width:820px;margin:0 auto;padding:48px 24px 100px}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.plan-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:28px}
+.plan-card.featured{border:2px solid var(--amber);position:relative}
+.plan-card.featured::before{content:'★ Mais popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--amber);color:#1a0f00;font-size:11px;font-weight:500;padding:3px 14px;border-radius:100px;white-space:nowrap}
+.plan-name{font-size:12px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.plan-price{font-family:'Fraunces',serif;font-size:40px;font-weight:300;letter-spacing:-2px;color:var(--t);margin-bottom:4px}
+.plan-period{font-size:13px;color:var(--t3);margin-bottom:24px}
+.plan-feats{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.plan-feat{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--t2)}
+.pf-on{color:var(--a);flex-shrink:0;margin-top:2px}
+.pf-off{color:var(--t4);flex-shrink:0;margin-top:2px}
+.plan-cta{border:1px solid var(--b2);background:transparent;border-radius:var(--r2);padding:12px;color:var(--t2);font-size:14px;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;transition:all .2s}
+.plan-cta:hover{border-color:var(--a);color:var(--a)}
+.plan-card.featured .plan-cta{background:var(--amber);color:#1a0f00;border-color:var(--amber);font-weight:500}
+.plan-card.featured .plan-cta:hover{opacity:.88}
+.faq-section{margin-top:72px}
+.faq-plans{display:flex;flex-direction:column;gap:0;margin-top:28px}
+.faq-p{border-bottom:1px solid var(--b);padding:18px 0}
+.faq-p-q{font-size:15px;font-weight:500;color:var(--t);margin-bottom:8px}
+.faq-p-a{font-size:14px;color:var(--t2);margin:0}
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+footer{border-top:1px solid var(--b);padding:36px 24px;text-align:center}
+.footer-logo{font-family:'Fraunces',serif;font-size:20px;color:var(--a);margin-bottom:12px}
+.footer-links{display:flex;gap:20px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.footer-links a{font-size:13px;color:var(--t3);text-decoration:none;cursor:pointer;transition:color .2s}
+.footer-links a:hover{color:var(--a)}
+.footer-disc{max-width:580px;margin:0 auto 16px;background:rgba(224,85,85,.05);border:1px solid rgba(224,85,85,.12);border-radius:8px;padding:10px 16px;font-size:12px;color:rgba(224,85,85,.6);line-height:1.6}
+.footer-copy{font-size:12px;color:var(--t4)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  nav{padding:0 16px}
+  .nav-links .nav-link{display:none}
+  .how-grid,.features-grid,.chapters-grid,.plans-grid{grid-template-columns:1fr}
+  .ebook-hero{grid-template-columns:1fr}
+  .body-grid{grid-template-columns:repeat(3,1fr)}
+  .stats-bar{flex-direction:column}
+  .stat{border-right:none;border-bottom:1px solid var(--b)}
+  .stat:last-child{border-bottom:none}
+  .cta-box{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="goTo('home')">
+    <div class="logo-dot"></div>
+    DorNow
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" id="nl-home" onclick="goTo('home')">Início</button>
+    <button class="nav-link" id="nl-analisar" onclick="goTo('analisar')">Analisar</button>
+    <button class="nav-link" id="nl-guias" onclick="goTo('guias')">Guias</button>
+    <button class="nav-link" id="nl-ebook" onclick="goTo('ebook')">E-book</button>
+    <button class="nav-link" id="nl-planos" onclick="goTo('planos')">Planos</button>
+    <button class="nav-cta" onclick="goTo('analisar')">Analisar grátis →</button>
+  </div>
+</nav>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-glow"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="hero-tag anim-1"><span style="width:6px;height:6px;border-radius:50%;background:var(--a);animation:pulse 2s infinite"></span> IA médica informativa · Gratuito para começar</div>
+    <h1 class="hero-h anim-2">Entenda sua <em>dor</em><br>em segundos</h1>
+    <p class="hero-sub anim-3">Descreva onde dói, tire uma foto e nossa IA explica as possíveis causas — e quando buscar ajuda médica de verdade.</p>
+    <div class="hero-actions anim-4">
+      <button class="btn-primary" onclick="goTo('analisar')">🔍 Analisar minha dor agora</button>
+      <button class="btn-ghost" onclick="goTo('guias')">Ver guias de saúde</button>
+    </div>
+    <p class="hero-note anim-5">⚠️ Informativo apenas. Não substitui consulta médica.</p>
+    <div class="stats-bar anim-5">
+      <div class="stat"><div class="stat-val">16</div><div class="stat-label">Regiões do corpo</div></div>
+      <div class="stat"><div class="stat-val">IA</div><div class="stat-label">Análise inteligente</div></div>
+      <div class="stat"><div class="stat-val">0s</div><div class="stat-label">Espera para resultado</div></div>
+      <div class="stat"><div class="stat-val">R$0</div><div class="stat-label">Para começar</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-tag">Como funciona</p>
+      <h2 class="section-title">Três passos para entender sua dor</h2>
+      <p class="section-sub">Sem filas, sem espera, sem julgamento. Sua privacidade é preservada.</p>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="how-num">01</div>
+          <p class="how-card-title">Selecione a região</p>
+          <p class="how-card-desc">Toque na parte do corpo onde você sente dor e informe a intensidade de 1 a 10.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-num">02</div>
+          <p class="how-card-title">Envie uma foto</p>
+          <p class="how-card-desc">Tire uma foto da região afetada. A IA visual identifica inchaço, vermelhidão e hematomas.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-num">03</div>
+          <p class="how-card-title">Receba a análise</p>
+          <p class="how-card-desc">Em segundos, as causas mais prováveis, dicas de alívio e quando procurar um médico.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="section-inner">
+      <p class="section-tag">Por que o DorNow</p>
+      <h2 class="section-title">Tudo que você precisa saber sobre sua dor</h2>
+      <div class="features-grid">
+        <div class="feat-card"><div class="feat-icon">🤖</div><div><p class="feat-title">IA com base clínica</p><p class="feat-desc">Treinada com padrões médicos reais para oferecer análises precisas e relevantes.</p></div></div>
+        <div class="feat-card"><div class="feat-icon">📷</div><div><p class="feat-title">Análise por foto</p><p class="feat-desc">Envie uma foto da região e nossa IA identifica sinais visuais como inchaço e vermelhidão.</p></div></div>
+        <div class="feat-card"><div class="feat-icon">⚡</div><div><p class="feat-title">Resultado em segundos</p><p class="feat-desc">Sem filas, sem formulários longos. Sua análise fica pronta enquanto você ainda está na mesma posição.</p></div></div>
+        <div class="feat-card"><div class="feat-icon">🔒</div><div><p class="feat-title">Privacidade total</p><p class="feat-desc">Suas informações não são armazenadas. Cada análise é processada e descartada.</p></div></div>
+        <div class="feat-card"><div class="feat-icon">🚨</div><div><p class="feat-title">Alertas de urgência</p><p class="feat-desc">O sistema identifica sinais de emergência e te avisa quando procurar atendimento médico imediato.</p></div></div>
+        <div class="feat-card"><div class="feat-icon">📚</div><div><p class="feat-title">Guias completos</p><p class="feat-desc">Conteúdo aprofundado sobre cada tipo de dor para você entender o próprio corpo.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAVINGS SECTION -->
+  <section class="section" style="padding:80px 24px">
+    <div class="section-inner">
+      <p class="section-tag">Por que o DorNow vale a pena</p>
+      <h2 class="section-title">Pare de gastar uma fortuna<br>para entender sua dor</h2>
+      <p class="section-sub" style="max-width:560px">Uma consulta médica particular custa em média R$ 300. Com o DorNow Pro você paga R$ 19,90 por mês e tem análises ilimitadas — entenda sua dor antes mesmo de sair de casa.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px;max-width:680px">
+        <div style="background:rgba(224,85,85,.05);border:1px solid rgba(224,85,85,.15);border-radius:var(--r);padding:28px">
+          <p style="font-size:11px;font-weight:500;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px">Consulta particular</p>
+          <p style="font-family:'Fraunces',serif;font-size:42px;font-weight:300;color:var(--red);letter-spacing:-2px;margin-bottom:4px">R$ 300</p>
+          <p style="font-size:13px;color:var(--t3);margin-bottom:22px">por consulta</p>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t3)"><span style="color:var(--red)">✗</span> Fila de espera de dias</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t3)"><span style="color:var(--red)">✗</span> Precisa sair de casa</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t3)"><span style="color:var(--red)">✗</span> Paga por cada visita</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t3)"><span style="color:var(--red)">✗</span> Às vezes só para ouvir "tome analgésico"</div>
+          </div>
+        </div>
+        <div style="background:var(--as2);border:2px solid var(--a);border-radius:var(--r);padding:28px;position:relative">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--a);color:#04110a;font-size:10px;font-weight:500;padding:3px 14px;border-radius:100px;white-space:nowrap">✦ Recomendado</div>
+          <p style="font-size:11px;font-weight:500;color:var(--a);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px">DorNow Pro</p>
+          <p style="font-family:'Fraunces',serif;font-size:42px;font-weight:300;color:var(--a);letter-spacing:-2px;margin-bottom:4px">R$ 19,90</p>
+          <p style="font-size:13px;color:var(--t3);margin-bottom:22px">por mês · ilimitado</p>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t2)"><span style="color:var(--a)">✓</span> Resultado em segundos</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t2)"><span style="color:var(--a)">✓</span> De onde você estiver</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t2)"><span style="color:var(--a)">✓</span> Análises ilimitadas</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t2)"><span style="color:var(--a)">✓</span> Causas, exercícios e medicamentos</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--s);border:1px solid var(--b2);border-radius:var(--r);padding:24px 28px;margin-top:24px;max-width:680px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div>
+          <p style="font-size:13px;color:var(--t2);margin-bottom:4px">Com apenas <strong style="color:var(--t)">1 consulta particular</strong> você já pagaria o DorNow Pro por</p>
+          <p style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--a);letter-spacing:-1px;margin:0">15 meses inteiros</p>
+        </div>
+        <button class="btn-primary" onclick="goTo('planos')">Ver planos →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- mini CTA -->
+  <section class="section" style="text-align:center;padding-top:0">
+    <div class="section-inner">
+      <h2 class="section-title" style="text-align:center;max-width:500px;margin:0 auto 16px">Pronto para entender sua dor?</h2>
+      <p style="color:var(--t2);font-size:15px;margin-bottom:32px">Comece gratuitamente. Sem cadastro para a análise básica.</p>
+      <button class="btn-primary" style="margin:0 auto" onclick="goTo('analisar')">🔍 Analisar agora — é grátis</button>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">DorNow</div>
+    <div class="footer-links">
+      <a onclick="goTo('home')">Início</a>
+      <a onclick="goTo('analisar')">Analisar</a>
+      <a onclick="goTo('guias')">Guias</a>
+      <a onclick="goTo('ebook')">E-book</a>
+      <a onclick="goTo('planos')">Planos</a>
+    </div>
+    <div class="footer-disc">⚠️ DorNow é um serviço informativo baseado em IA. As análises não constituem diagnóstico médico e não substituem consulta com profissional de saúde habilitado.</div>
+    <p class="footer-copy">© 2025 DorNow</p>
+  </footer>
+</div>
+
+<!-- ══════════ ANALISAR ══════════ -->
+<div class="page" id="page-analisar">
+  <div class="app-wrap">
+    <div class="app-header">
+      <p style="font-size:11px;color:var(--a);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:10px">Análise com IA · Gratuito</p>
+      <h2 class="app-title">Onde você está sentindo dor?</h2>
+      <p class="app-sub">Selecione a região, informe a intensidade e envie uma foto opcional</p>
+    </div>
+
+    <!-- BODY MAP -->
+    <div class="card-block" id="block-body">
+      <p class="block-label">1 — Toque na região afetada</p>
+      <div class="body-grid">
+        <button class="body-btn" data-part="cabeça" onclick="selPart(this)"><span class="body-icon">🧠</span><span class="body-name">Cabeça</span></button>
+        <button class="body-btn" data-part="olhos" onclick="selPart(this)"><span class="body-icon">👁️</span><span class="body-name">Olhos</span></button>
+        <button class="body-btn" data-part="ouvidos" onclick="selPart(this)"><span class="body-icon">👂</span><span class="body-name">Ouvidos</span></button>
+        <button class="body-btn" data-part="garganta" onclick="selPart(this)"><span class="body-icon">🫁</span><span class="body-name">Garganta</span></button>
+        <button class="body-btn" data-part="pescoço e ombros" onclick="selPart(this)"><span class="body-icon">🦴</span><span class="body-name">Pescoço</span></button>
+        <button class="body-btn" data-part="peito" onclick="selPart(this)"><span class="body-icon">❤️</span><span class="body-name">Peito</span></button>
+        <button class="body-btn" data-part="abdômen" onclick="selPart(this)"><span class="body-icon">🫃</span><span class="body-name">Abdômen</span></button>
+        <button class="body-btn" data-part="costas e lombar" onclick="selPart(this)"><span class="body-icon">🔙</span><span class="body-name">Costas</span></button>
+        <button class="body-btn" data-part="braços e cotovelos" onclick="selPart(this)"><span class="body-icon">💪</span><span class="body-name">Braços</span></button>
+        <button class="body-btn" data-part="mãos e punhos" onclick="selPart(this)"><span class="body-icon">✋</span><span class="body-name">Mãos</span></button>
+        <button class="body-btn" data-part="quadril" onclick="selPart(this)"><span class="body-icon">🦴</span><span class="body-name">Quadril</span></button>
+        <button class="body-btn" data-part="joelhos e pernas" onclick="selPart(this)"><span class="body-icon">🦵</span><span class="body-name">Joelhos</span></button>
+        <button class="body-btn" data-part="tornozelos e pés" onclick="selPart(this)"><span class="body-icon">🦶</span><span class="body-name">Pés</span></button>
+        <button class="body-btn" data-part="pele" onclick="selPart(this)"><span class="body-icon">🩺</span><span class="body-name">Pele</span></button>
+        <button class="body-btn" data-part="músculos" onclick="selPart(this)"><span class="body-icon">💊</span><span class="body-name">Músculos</span></button>
+        <button class="body-btn" data-part="articulações" onclick="selPart(this)"><span class="body-icon">🦿</span><span class="body-name">Articulação</span></button>
+      </div>
+    </div>
+
+    <!-- INTENSITY -->
+    <div class="card-block" id="block-int" style="display:none">
+      <p class="block-label">2 — Intensidade da dor (1–10)</p>
+      <div class="intensity-row">
+        <button class="int-btn" onclick="selInt(this,1)">1</button>
+        <button class="int-btn" onclick="selInt(this,2)">2</button>
+        <button class="int-btn" onclick="selInt(this,3)">3</button>
+        <button class="int-btn" onclick="selInt(this,4)">4</button>
+        <button class="int-btn" onclick="selInt(this,5)">5</button>
+        <button class="int-btn" onclick="selInt(this,6)">6</button>
+        <button class="int-btn" onclick="selInt(this,7)">7</button>
+        <button class="int-btn" onclick="selInt(this,8)">8</button>
+        <button class="int-btn" onclick="selInt(this,9)">9</button>
+        <button class="int-btn" onclick="selInt(this,10)">10</button>
+      </div>
+      <p class="int-desc" id="intDesc">Selecione de 1 (leve) a 10 (insuportável)</p>
+    </div>
+
+    <!-- PHOTO -->
+    <div class="card-block" id="block-photo" style="display:none">
+      <p class="block-label">3 — Foto da região (opcional)</p>
+      <div class="photo-grid">
+        <button class="photo-opt" onclick="document.getElementById('cam-in').click()"><span class="photo-opt-icon">📷</span><span>Tirar foto agora</span></button>
+        <button class="photo-opt" onclick="document.getElementById('file-in').click()"><span class="photo-opt-icon">🖼️</span><span>Escolher da galeria</span></button>
+      </div>
+      <div class="preview-wrap" id="prevWrap"><img id="prevImg" src="" alt="foto"><div class="preview-cap">✓ Foto carregada — será analisada junto</div></div>
+      <input type="file" id="cam-in" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+      <input type="file" id="file-in" accept="image/*" onchange="handlePhoto(this)">
+    </div>
+
+    <!-- ANALYZE BTN -->
+    <div class="analyze-wrap" id="analyzeWrap">
+      <button class="analyze-btn" id="analyzeBtn" onclick="doAnalysis()">🔬 Analisar minha dor</button>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-wrap" id="loadWrap">
+      <div class="spinner"></div>
+      <p style="color:var(--t2);font-size:14px">Analisando com IA médica…</p>
+      <div class="loading-steps">
+        <p class="ls" id="ls1">Identificando região afetada…</p>
+        <p class="ls" id="ls2">Cruzando com base de dados clínicos…</p>
+        <p class="ls" id="ls3">Avaliando possíveis causas…</p>
+        <p class="ls" id="ls4">Preparando recomendações…</p>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-wrap" id="resultWrap">
+      <div class="result-head">
+        <div class="result-badge">🤖 Análise de IA · Informativo</div>
+        <p class="result-title" id="resTitle">Resultado</p>
+        <p class="result-subtitle" id="resSub">Intensidade reportada</p>
+      </div>
+      <div class="result-body" id="resBody"></div>
+      <div class="paywall" style="display:none">
+        <div class="pw-icon">🔒</div>
+        <p class="pw-title">Desbloqueie a análise completa</p>
+        <p class="pw-desc">Você recebeu a visão geral gratuita. Assine o Pro e tenha acesso à análise detalhada, exercícios de alívio, histórico e muito mais.</p>
+        <div class="pw-feats">
+          <div class="pw-feat"><span class="pw-check">✦</span>Análise detalhada com percentual de probabilidade por causa</div>
+          <div class="pw-feat"><span class="pw-check">✦</span>Exercícios e automassagem para alívio imediato</div>
+          <div class="pw-feat"><span class="pw-check">✦</span>Medicamentos de venda livre recomendados</div>
+          <div class="pw-feat"><span class="pw-check">✦</span>Histórico completo das suas análises</div>
+          <div class="pw-feat"><span class="pw-check">✦</span>Análises ilimitadas por mês</div>
+        </div>
+        <button class="pw-btn" onclick="goTo('planos')">Ver planos — a partir de R$ 19,90/mês</button>
+        <p class="pw-price">Cancele quando quiser · <strong>Sem fidelidade</strong></p>
+      </div>
+      <button class="retry-btn" onclick="resetApp()">↩ Fazer nova análise</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GUIAS ══════════ -->
+<div class="page" id="page-guias">
+  <!-- grid de guias -->
+  <div class="guides-wrap" id="guidesGrid">
+    <p style="font-size:11px;color:var(--a);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:14px">Guias de saúde · SEO</p>
+    <h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:300;letter-spacing:-1.5px;margin-bottom:10px">Entenda cada tipo de <em style="color:var(--a);font-style:italic">dor</em></h2>
+    <p style="color:var(--t2);font-size:15px;margin-bottom:0">Guias completos com causas, sinais de alerta e quando procurar médico.</p>
+    <div class="guides-grid">
+      <div class="guide-card" onclick="showGuide('costas')"><div class="gc-icon">🔙</div><p class="gc-title">Dor nas Costas</p><p class="gc-desc">Tensão, hérnia de disco, problemas renais — entenda a causa certa</p><span class="gc-tag">mais pesquisado</span></div>
+      <div class="guide-card" onclick="showGuide('cabeca')"><div class="gc-icon">🧠</div><p class="gc-title">Dor de Cabeça</p><p class="gc-desc">Enxaqueca, tensional, sinusite e os sinais de emergência</p><span class="gc-tag">muito comum</span></div>
+      <div class="guide-card" onclick="showGuide('joelho')"><div class="gc-icon">🦵</div><p class="gc-title">Dor no Joelho</p><p class="gc-desc">Menisco, ligamento, artrose, tendinite — o que é cada um</p><span class="gc-tag">frequente</span></div>
+      <div class="guide-card" onclick="showGuide('abdomen')"><div class="gc-icon">🫃</div><p class="gc-title">Dor Abdominal</p><p class="gc-desc">Gastrite, apendicite, vesícula — e como identificar urgências</p><span class="gc-tag">pode ser urgência</span></div>
+      <div class="guide-card" onclick="showGuide('peito')"><div class="gc-icon">❤️</div><p class="gc-title">Dor no Peito</p><p class="gc-desc">Quando é o coração, ansiedade ou refluxo — como distinguir</p><span class="gc-tag">nunca ignorar</span></div>
+    </div>
+  </div>
+
+  <!-- guide detail -->
+  <div class="guide-detail" id="guide-costas">
+    <div class="breadcrumb"><a onclick="backGuides()">Guias</a><span class="breadcrumb-sep">›</span> Dor nas Costas</div>
+    <h1 class="guide-h1">Dor nas <em>costas</em>:<br>o que pode estar acontecendo</h1>
+    <p class="guide-intro">A dor nas costas afeta 8 em cada 10 brasileiros em algum momento da vida. Entender a causa é o primeiro passo para o alívio certo.</p>
+    <div class="cta-box"><div class="cta-box-text"><strong>Sentindo dor agora?</strong><p>Nossa IA analisa e explica as possíveis causas em segundos — de graça.</p></div><button class="btn-primary" onclick="goTo('analisar')">Analisar →</button></div>
+    <h2 class="guide-h2">Causas mais comuns</h2>
+    <div class="card-g">
+      <div class="mini-card"><div class="mini-icon">💪</div><p class="mini-title">Tensão muscular</p><p class="mini-desc">A causa mais comum. Movimentos bruscos, má postura ou esforço excessivo.</p></div>
+      <div class="mini-card"><div class="mini-icon">🦴</div><p class="mini-title">Hérnia de disco</p><p class="mini-desc">Disco deslocado pressiona nervos causando dor intensa e formigamento nas pernas.</p></div>
+      <div class="mini-card"><div class="mini-icon">🪑</div><p class="mini-title">Má postura</p><p class="mini-desc">Horas sentado sem apoio sobrecarregam a coluna progressivamente.</p></div>
+      <div class="mini-card"><div class="mini-icon">🫘</div><p class="mini-title">Problema renal</p><p class="mini-desc">Dor nos flancos com febre e ardor ao urinar pode indicar infecção renal.</p></div>
+    </div>
+    <h2 class="guide-h2">Quando buscar médico com urgência?</h2>
+    <div class="alert-g"><p class="alert-g-title">⚠️ Procure ajuda imediatamente se a dor vier com:</p><ul><li>Formigamento ou fraqueza nas pernas</li><li>Dificuldade para urinar ou controlar o intestino</li><li>Febre acima de 38°C</li><li>Dor após queda ou acidente</li><li>Dor que piora à noite sem melhora ao deitar</li></ul></div>
+    <h2 class="guide-h2">O que fazer para aliviar em casa</h2>
+    <ul class="guide-ul"><li><strong>Calor local</strong> por 20 minutos alivia tensão muscular</li><li><strong>Movimentação leve</strong> — ficar na cama piora, não melhora</li><li><strong>Alongamentos suaves</strong> de rotação do tronco e flexão do quadril</li><li><strong>Ajuste postural</strong> — cadeira com apoio lombar, tela na altura dos olhos</li></ul>
+    <div class="faq-item"><p class="faq-q">Dor nas costas pode ser problema no rim?</p><p class="faq-a">Sim. A dor renal costuma ser nos flancos com febre e ardor ao urinar. Procure médico se suspeitar.</p></div>
+    <div class="faq-item"><p class="faq-q">Quantos dias de dor é normal?</p><p class="faq-a">Dores musculares melhoram em 3 a 7 dias. Se passar de 2 semanas sem melhora, consulte um médico.</p></div>
+    <div class="cta-box" style="margin-top:44px"><div class="cta-box-text"><strong>Analise sua dor agora — gratuito</strong><p>Receba as possíveis causas e o que fazer em segundos.</p></div><button class="btn-primary" onclick="goTo('analisar')">Começar →</button></div>
+  </div>
+
+  <div class="guide-detail" id="guide-cabeca">
+    <div class="breadcrumb"><a onclick="backGuides()">Guias</a><span class="breadcrumb-sep">›</span> Dor de Cabeça</div>
+    <h1 class="guide-h1">Dor de <em>cabeça</em>:<br>tipos, causas e alertas</h1>
+    <p class="guide-intro">Quase todo mundo já teve dor de cabeça, mas nem toda dor é igual. Entender o tipo certo é essencial para o tratamento correto.</p>
+    <div class="cta-box"><div class="cta-box-text"><strong>Sentindo dor agora?</strong><p>Análise gratuita com IA em segundos.</p></div><button class="btn-primary" onclick="goTo('analisar')">Analisar →</button></div>
+    <h2 class="guide-h2">Tipos mais comuns</h2>
+    <div class="card-g">
+      <div class="mini-card"><div class="mini-icon">😤</div><p class="mini-title">Tensional</p><p class="mini-desc">Aperto bilateral ao redor da cabeça. Causa: estresse e cansaço.</p></div>
+      <div class="mini-card"><div class="mini-icon">⚡</div><p class="mini-title">Enxaqueca</p><p class="mini-desc">Pulsante, geralmente em um lado, com náusea e sensibilidade à luz.</p></div>
+      <div class="mini-card"><div class="mini-icon">🌬️</div><p class="mini-title">Sinusite</p><p class="mini-desc">Pressão na testa e bochechas. Piora ao abaixar a cabeça.</p></div>
+      <div class="mini-card"><div class="mini-icon">💧</div><p class="mini-title">Desidratação</p><p class="mini-desc">Difusa, melhora rapidamente com hidratação. Muito subestimada.</p></div>
+    </div>
+    <h2 class="guide-h2">Quando é emergência?</h2>
+    <div class="alert-g"><p class="alert-g-title">🚨 Vá ao pronto-socorro se a dor:</p><ul><li>For a pior da sua vida, de início súbito ("como um raio")</li><li>Vier com rigidez no pescoço e febre</li><li>Causar confusão mental ou dificuldade de falar</li><li>Vier após pancada na cabeça</li></ul></div>
+    <h2 class="guide-h2">O que fazer em casa</h2>
+    <ul class="guide-ul"><li><strong>Beba 2 copos de água</strong> imediatamente</li><li><strong>Escureça o ambiente</strong> — luz forte piora enxaqueca</li><li><strong>Compressa fria na testa</strong> por 15 minutos</li><li><strong>Paracetamol ou ibuprofeno</strong> para dores leves a moderadas</li></ul>
+    <div class="faq-item"><p class="faq-q">Por que tenho dor de cabeça todo dia?</p><p class="faq-a">Pode ser estresse crônico, desidratação ou uso excessivo de analgésicos. Se persistir por 2+ semanas, procure um neurologista.</p></div>
+    <div class="cta-box" style="margin-top:44px"><div class="cta-box-text"><strong>Analise sua dor de cabeça</strong><p>Receba as possíveis causas gratuitamente.</p></div><button class="btn-primary" onclick="goTo('analisar')">Começar →</button></div>
+  </div>
+
+  <div class="guide-detail" id="guide-joelho">
+    <div class="breadcrumb"><a onclick="backGuides()">Guias</a><span class="breadcrumb-sep">›</span> Dor no Joelho</div>
+    <h1 class="guide-h1">Dor no <em>joelho</em>:<br>causas e quando tratar</h1>
+    <p class="guide-intro">O joelho é a articulação mais complexa do corpo. Ignorar os primeiros sinais pode transformar um problema simples em cirurgia.</p>
+    <div class="cta-box"><div class="cta-box-text"><strong>Sentindo dor no joelho?</strong><p>Análise gratuita com IA — saiba o que pode ser.</p></div><button class="btn-primary" onclick="goTo('analisar')">Analisar →</button></div>
+    <h2 class="guide-h2">Causas mais comuns</h2>
+    <div class="card-g">
+      <div class="mini-card"><div class="mini-icon">🏃</div><p class="mini-title">Síndrome patelar</p><p class="mini-desc">Dor ao redor da patela. Piora ao subir escadas ou agachar.</p></div>
+      <div class="mini-card"><div class="mini-icon">🔄</div><p class="mini-title">Lesão de menisco</p><p class="mini-desc">Sensação de travar. Dor ao torcer, piora ao agachar fundo.</p></div>
+      <div class="mini-card"><div class="mini-icon">🦴</div><p class="mini-title">Artrose</p><p class="mini-desc">Desgaste da cartilagem. Dor crônica que piora progressivamente.</p></div>
+      <div class="mini-card"><div class="mini-icon">💥</div><p class="mini-title">Ligamento cruzado</p><p class="mini-desc">Dor intensa após trauma com "estalo". Inchaço imediato.</p></div>
+    </div>
+    <h2 class="guide-h2">Quando ir ao ortopedista?</h2>
+    <div class="alert-g"><p class="alert-g-title">⚠️ Procure médico se:</p><ul><li>O joelho inchou muito após queda ou torção</li><li>O joelho "trava" e não consegue ser estendido</li><li>Há incapacidade de apoiar o peso no membro</li><li>Joelho vermelho, quente e inchado sem trauma</li></ul></div>
+    <h2 class="guide-h2">O que fazer em casa</h2>
+    <ul class="guide-ul"><li><strong>Gelo</strong> nas primeiras 48h de lesão aguda (20min, 3x ao dia)</li><li><strong>Calor</strong> após 48h para dores musculares crônicas</li><li><strong>Repouso relativo</strong> — evite impacto mas não imobilize totalmente</li><li><strong>Fortalecer o quadríceps</strong> é o melhor tratamento preventivo</li></ul>
+    <div class="cta-box" style="margin-top:44px"><div class="cta-box-text"><strong>Analise sua dor no joelho</strong><p>Saiba as possíveis causas em segundos.</p></div><button class="btn-primary" onclick="goTo('analisar')">Começar →</button></div>
+  </div>
+
+  <div class="guide-detail" id="guide-abdomen">
+    <div class="breadcrumb"><a onclick="backGuides()">Guias</a><span class="breadcrumb-sep">›</span> Dor Abdominal</div>
+    <h1 class="guide-h1">Dor <em>abdominal</em>:<br>o que está por dentro</h1>
+    <p class="guide-intro">O abdômen tem dezenas de órgãos. Uma dor pode ser gás — ou apendicite. Saber onde dói já ajuda muito a entender a causa.</p>
+    <div class="cta-box"><div class="cta-box-text"><strong>Sentindo dor agora?</strong><p>Análise gratuita com IA para entender o que pode ser.</p></div><button class="btn-primary" onclick="goTo('analisar')">Analisar →</button></div>
+    <h2 class="guide-h2">Causas por localização</h2>
+    <div class="card-g">
+      <div class="mini-card"><div class="mini-icon">⬆️</div><p class="mini-title">Boca do estômago</p><p class="mini-desc">Gastrite ou úlcera. Piora em jejum, melhora ao comer.</p></div>
+      <div class="mini-card"><div class="mini-icon">➡️</div><p class="mini-title">Lado direito inferior</p><p class="mini-desc">Suspeita de apendicite. Começa no umbigo e migra.</p></div>
+      <div class="mini-card"><div class="mini-icon">↗️</div><p class="mini-title">Lado direito superior</p><p class="mini-desc">Vesícula biliar. Piora após refeição gordurosa.</p></div>
+      <div class="mini-card"><div class="mini-icon">🔄</div><p class="mini-title">Difusa e crampiforme</p><p class="mini-desc">Gases ou intestino irritável. Melhora com eliminação.</p></div>
+    </div>
+    <h2 class="guide-h2">Quando é emergência?</h2>
+    <div class="alert-g"><p class="alert-g-title">🚨 Vá ao pronto-socorro se:</p><ul><li>Dor forte no lado direito inferior — suspeita de apendicite</li><li>Dor com febre acima de 38°C</li><li>Abdômen rígido ao toque</li><li>Vômito com sangue ou fezes escuras</li></ul></div>
+    <div class="cta-box" style="margin-top:44px"><div class="cta-box-text"><strong>Analise sua dor abdominal</strong><p>Saiba as possíveis causas em segundos.</p></div><button class="btn-primary" onclick="goTo('analisar')">Começar →</button></div>
+  </div>
+
+  <div class="guide-detail" id="guide-peito">
+    <div class="breadcrumb"><a onclick="backGuides()">Guias</a><span class="breadcrumb-sep">›</span> Dor no Peito</div>
+    <h1 class="guide-h1">Dor no <em>peito</em>:<br>quando é urgência real</h1>
+    <p class="guide-intro">A dor no peito pode ser inofensiva ou uma emergência cardiovascular. O problema é que as duas podem parecer idênticas para quem está sentindo.</p>
+    <div class="cta-box"><div class="cta-box-text"><strong>Sentindo dor no peito?</strong><p>Análise gratuita com IA — saiba quando se preocupar.</p></div><button class="btn-primary" onclick="goTo('analisar')">Analisar →</button></div>
+    <h2 class="guide-h2">Causas mais comuns</h2>
+    <div class="card-g">
+      <div class="mini-card"><div class="mini-icon">😰</div><p class="mini-title">Ansiedade</p><p class="mini-desc">Mais comum em jovens. Acompanha palpitações e falta de ar.</p></div>
+      <div class="mini-card"><div class="mini-icon">🔥</div><p class="mini-title">Refluxo</p><p class="mini-desc">Queimação que sobe para o peito. Piora após refeições.</p></div>
+      <div class="mini-card"><div class="mini-icon">💪</div><p class="mini-title">Tensão muscular</p><p class="mini-desc">Dor ao pressionar o local. Piora ao movimentar o tronco.</p></div>
+      <div class="mini-card"><div class="mini-icon">❤️</div><p class="mini-title">Angina / Infarto</p><p class="mini-desc">Pressão no centro do peito. Pode irradiar para o braço esquerdo.</p></div>
+    </div>
+    <h2 class="guide-h2">Sinais de emergência — ligue 192</h2>
+    <div class="alert-g"><p class="alert-g-title">🚨 Emergência imediata se a dor:</p><ul><li>For forte no centro ou lado esquerdo por mais de 5 minutos</li><li>Irradiar para o braço esquerdo, mandíbula ou costas</li><li>Vier com suor frio, náusea ou falta de ar</li><li>Vier com sensação de peso ou pressão no peito</li></ul></div>
+    <div class="faq-item"><p class="faq-q">Como diferenciar ataque de pânico de infarto?</p><p class="faq-a">É muito difícil sem exames. Se tiver dúvida, trate como infarto e busque atendimento — sempre melhor um falso alarme do que ignorar um infarto real.</p></div>
+    <div class="cta-box" style="margin-top:44px"><div class="cta-box-text"><strong>Analise sua dor no peito</strong><p>Saiba as possíveis causas em segundos — é gratuito.</p></div><button class="btn-primary" onclick="goTo('analisar')">Começar →</button></div>
+  </div>
+</div>
+
+<!-- ══════════ EBOOK ══════════ -->
+<div class="page" id="page-ebook">
+  <div class="ebook-wrap">
+    <div class="ebook-hero">
+      <div class="ebook-cover">
+        <div class="ebook-cover-glow"></div>
+        <p class="ebook-brand">DorNow · E-book</p>
+        <div style="font-size:48px;margin:16px 0">📕</div>
+        <p class="ebook-title-cover"><em>10 Tipos de Dor</em><br>que Você Nunca<br>Deve Ignorar</p>
+        <p style="font-size:13px;color:var(--t2);margin-top:12px;line-height:1.6">O guia completo para entender os sinais do seu corpo — e quando agir antes que seja tarde demais.</p>
+        <span class="ebook-pages-tag">PDF · 60+ páginas · Download imediato</span>
+      </div>
+      <div class="ebook-content">
+        <p style="font-size:11px;color:var(--a);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:14px">E-book Digital</p>
+        <h2>O guia que seu médico <em>queria</em> que você tivesse</h2>
+        <p>A maioria das pessoas vai ao médico tarde demais — porque não sabia que aquela dor era sinal de algo sério. Este e-book muda isso.</p>
+        <p>São 10 capítulos cobrindo as dores mais perigosas do corpo humano, com linguagem simples e acionável.</p>
+        <div class="ebook-price-row">
+          <span class="price-main">R$ 37</span>
+          <span class="price-old">R$ 67</span>
+          <span class="price-save">45% OFF</span>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:12px" onclick="goTo('planos')">📥 Comprar agora — R$ 37</button>
+        <p style="font-size:12px;color:var(--t3);text-align:center">✓ Download imediato · ✓ Garantia de 7 dias · ✓ PDF para qualquer dispositivo</p>
+      </div>
+    </div>
+
+    <div class="chapters-section">
+      <p style="font-size:11px;color:var(--a);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:12px">O que você vai aprender</p>
+      <h2 style="font-family:'Fraunces',serif;font-size:clamp(24px,3vw,34px);font-weight:300;letter-spacing:-1px;margin-bottom:24px">10 capítulos que podem salvar sua vida</h2>
+      <div class="chapters-grid">
+        <div class="chapter-card"><div class="ch-num">01</div><div><p class="ch-title">Dor no Peito — Quando é Urgência Real</p><p class="ch-desc">Como distinguir ansiedade de infarto sem entrar em pânico</p></div></div>
+        <div class="chapter-card"><div class="ch-num">02</div><div><p class="ch-title">Dor de Cabeça que Não Passa</p><p class="ch-desc">Cefaleia, enxaqueca e os sinais neurológicos de alerta</p></div></div>
+        <div class="chapter-card"><div class="ch-num">03</div><div><p class="ch-title">Dor nas Costas — Além da Tensão</p><p class="ch-desc">Hérnia, problema renal e dor referida explicados</p></div></div>
+        <div class="chapter-card"><div class="ch-num">04</div><div><p class="ch-title">Dor Abdominal — O Que Está Por Dentro</p><p class="ch-desc">Apendicite, vesícula e gastrite — como identificar cada uma</p></div></div>
+        <div class="chapter-card"><div class="ch-num">05</div><div><p class="ch-title">Dor nas Pernas e Panturrilha</p><p class="ch-desc">Do cansaço à trombose venosa — saiba a diferença</p></div></div>
+        <div class="chapter-card"><div class="ch-num">06</div><div><p class="ch-title">Dor nos Ombros e Pescoço</p><p class="ch-desc">Tensão, bursite e nervo comprimido — como tratar cada um</p></div></div>
+        <div class="chapter-card"><div class="ch-num">07</div><div><p class="ch-title">Dor nos Joelhos</p><p class="ch-desc">Menisco, ligamento, artrose — o guia completo</p></div></div>
+        <div class="chapter-card"><div class="ch-num">08</div><div><p class="ch-title">Dor nos Dentes e Maxilar</p><p class="ch-desc">Além da cárie — bruxismo, abscesso e DTM</p></div></div>
+        <div class="chapter-card"><div class="ch-num">09</div><div><p class="ch-title">Dor ao Respirar Fundo</p><p class="ch-desc">Pleura, costela e os sinais de embolia pulmonar</p></div></div>
+        <div class="chapter-card"><div class="ch-num">10</div><div><p class="ch-title">Dor Referida — Quando Não Está Onde Parece</p><p class="ch-desc">Por que o coração dói no braço e o fígado no ombro</p></div></div>
+      </div>
+    </div>
+
+    <div class="ebook-guarantee">
+      <div class="guarantee-icon">🛡️</div>
+      <p class="guarantee-title">Garantia incondicional de 7 dias</p>
+      <p class="guarantee-desc">Se por qualquer motivo você não gostar, devolvemos 100% do valor. Sem perguntas, sem burocracia.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PLANOS ══════════ -->
+<div class="page" id="page-planos">
+  <div class="plans-wrap">
+    <p style="font-size:11px;color:var(--a);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:14px">Planos</p>
+    <h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:300;letter-spacing:-1.5px;margin-bottom:10px">Comece grátis. Evolua quando precisar.</h2>
+    <p style="color:var(--t2);font-size:15px">Sem fidelidade. Cancele quando quiser.</p>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <p class="plan-name">Grátis</p>
+        <p class="plan-price">R$ 0</p>
+        <p class="plan-period">para sempre</p>
+        <div class="plan-feats">
+          <div class="plan-feat"><span class="pf-on">✓</span>3 análises por mês</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>Análise básica de causas</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>Foto da região afetada</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>Alertas de urgência</div>
+          <div class="plan-feat"><span class="pf-off">✗</span>Análise detalhada</div>
+          <div class="plan-feat"><span class="pf-off">✗</span>Histórico de dores</div>
+          <div class="plan-feat"><span class="pf-off">✗</span>Exercícios de alívio</div>
+        </div>
+        <button class="plan-cta" onclick="goTo('analisar')">Começar grátis</button>
+      </div>
+      <div class="plan-card featured">
+        <p class="plan-name">Pro</p>
+        <p class="plan-price" style="color:var(--amber)">R$ 19,90</p>
+        <p class="plan-period">por mês · cancele quando quiser</p>
+        <div class="plan-feats">
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Análises ilimitadas</div>
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Análise detalhada com probabilidades</div>
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Análise visual avançada por foto</div>
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Exercícios e automassagem</div>
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Histórico e evolução das dores</div>
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Chat de acompanhamento</div>
+          <div class="plan-feat"><span class="pf-on" style="color:var(--amber)">✓</span>Medicamentos de venda livre</div>
+        </div>
+        <button class="plan-cta">Assinar Pro agora</button>
+      </div>
+      <div class="plan-card">
+        <p class="plan-name">E-book</p>
+        <p class="plan-price">R$ 37</p>
+        <p class="plan-period">pagamento único</p>
+        <div class="plan-feats">
+          <div class="plan-feat"><span class="pf-on">✓</span>PDF com 60+ páginas</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>10 capítulos completos</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>Download imediato</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>Acesso vitalício</div>
+          <div class="plan-feat"><span class="pf-on">✓</span>Garantia de 7 dias</div>
+          <div class="plan-feat"><span class="pf-off">✗</span>Análises na plataforma</div>
+          <div class="plan-feat"><span class="pf-off">✗</span>Chat de acompanhamento</div>
+        </div>
+        <button class="plan-cta" onclick="goTo('ebook')">Comprar e-book</button>
+      </div>
+    </div>
+
+    <div class="faq-section">
+      <h2 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;letter-spacing:-1px;margin-bottom:0">Perguntas frequentes</h2>
+      <div class="faq-plans">
+        <div class="faq-p"><p class="faq-p-q">Como cancelo o plano Pro?</p><p class="faq-p-a">Você pode cancelar a qualquer momento sem multa ou burocracia. O acesso continua até o fim do período pago.</p></div>
+        <div class="faq-p"><p class="faq-p-q">O DorNow substitui o médico?</p><p class="faq-p-a">Não. O DorNow é informativo — serve para entender o que pode estar acontecendo e decidir se vale buscar atendimento médico. Nunca substitui diagnóstico profissional.</p></div>
+        <div class="faq-p"><p class="faq-p-q">Minhas fotos e dados ficam salvos?</p><p class="faq-p-a">No plano gratuito, não há armazenamento. No Pro, o histórico fica salvo na sua conta de forma segura e privada.</p></div>
+        <div class="faq-p"><p class="faq-p-q">Como recebo o e-book após a compra?</p><p class="faq-p-a">O download fica disponível imediatamente após a confirmação do pagamento. Você também recebe o link por e-mail.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="cam-in2" style="display:none" accept="image/*" capture="environment">
+<input type="file" id="file-in2" style="display:none" accept="image/*">
+
+<script>
+// ── STATE ──
+let selPart_ = null, selInt_ = null, photoB64 = null;
+const intLabels = {1:'Quase imperceptível',2:'Muito leve',3:'Leve',4:'Moderada leve',5:'Moderada',6:'Moderada intensa',7:'Intensa',8:'Muito intensa',9:'Severa',10:'Insuportável — busque ajuda médica urgente'};
+
+// ── NAVIGATION ──
+function goTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const nl = document.getElementById('nl-' + id);
+  if (nl) nl.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ── GUIDES ──
+function showGuide(id) {
+  document.getElementById('guidesGrid').style.display = 'none';
+  document.querySelectorAll('.guide-detail').forEach(g => g.classList.remove('show'));
+  document.getElementById('guide-' + id).classList.add('show');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function backGuides() {
+  document.querySelectorAll('.guide-detail').forEach(g => g.classList.remove('show'));
+  document.getElementById('guidesGrid').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ── APP ──
+function selPart(btn) {
+  document.querySelectorAll('.body-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selPart_ = btn.dataset.part;
+  document.getElementById('block-int').style.display = 'block';
+  document.getElementById('block-photo').style.display = 'block';
+  checkReady();
+}
+function selInt(btn, val) {
+  document.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selInt_ = val;
+  document.getElementById('intDesc').textContent = val + ' — ' + intLabels[val];
+  checkReady();
+}
+function checkReady() {
+  const w = document.getElementById('analyzeWrap');
+  if (selPart_ && selInt_) w.classList.add('show'); else w.classList.remove('show');
+}
+function handlePhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    photoB64 = e.target.result.split(',')[1];
+    document.getElementById('prevImg').src = e.target.result;
+    document.getElementById('prevWrap').style.display = 'block';
+  };
+  r.readAsDataURL(file);
+}
+async function doAnalysis() {
+  if (!selPart_ || !selInt_) return;
+  document.getElementById('analyzeWrap').classList.remove('show');
+  document.getElementById('loadWrap').classList.add('show');
+  const steps = ['ls1','ls2','ls3','ls4'];
+  for (let i = 0; i < steps.length; i++) {
+    await new Promise(r => setTimeout(r, 650));
+    document.getElementById(steps[i]).classList.add('on');
+  }
+  const photoNote = photoB64 ? ' Uma foto da região foi fornecida — considere sinais visuais como inchaço, vermelhidão, hematoma ou deformidade.' : '';
+  const prompt = `Você é um assistente de saúde informativo com acesso PRO completo. Dor na região: ${selPart_}. Intensidade: ${selInt_}/10 (${intLabels[selInt_]}).${photoNote}\n\nResponda SOMENTE com JSON puro (sem markdown), com análise COMPLETA e DETALHADA:\n{"titulo":"Dor em [parte] · Intensidade ${selInt_}/10","resumo":"3-4 frases detalhando o quadro clínico","causas_comuns":["causa 1 com explicação","causa 2 com explicação","causa 3 com explicação","causa 4 com explicação","causa 5 com explicação"],"probabilidades":["causa mais provável: 60%","segunda mais provável: 25%","terceira: 15%"],"sinais_atencao":["sinal grave 1","sinal grave 2","sinal grave 3"],"urgencia":"baixa|media|alta","urgencia_texto":"orientação detalhada sobre quando e qual tipo de médico procurar","dica_imediata":"dica detalhada de alívio imediato com passo a passo","exercicios":["exercício 1 para alívio","exercício 2 para alívio","exercício 3 para alívio"],"medicamentos":["medicamento venda livre 1 e dose","medicamento venda livre 2 e dose"],"estilo_vida":"dica de mudança de hábito para prevenir a recorrência"}`;
+  try {
+    const msgs = [{role:'user',content: photoB64 ? [{type:'image',source:{type:'base64',media_type:'image/jpeg',data:photoB64}},{type:'text',text:prompt}] : prompt}];
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:msgs})});
+    const data = await res.json();
+    const raw = data.content.map(c=>c.text||'').join('');
+    showResult(JSON.parse(raw.replace(/```json|```/g,'').trim()));
+  } catch(e) { showFallback(); }
+}
+function showResult(r) {
+  document.getElementById('loadWrap').classList.remove('show');
+  document.getElementById('resultWrap').classList.add('show');
+  document.getElementById('resTitle').textContent = r.titulo || `Dor em ${selPart_}`;
+  document.getElementById('resSub').textContent = `Intensidade ${selInt_}/10 · ${intLabels[selInt_]} · ✦ Análise Pro`;
+  const urgC = {baixa:'#4ecb71',media:'#d4a843',alta:'#e05555'}[r.urgencia]||'#4ecb71';
+
+  const probHTML = r.probabilidades ? `<div class="result-sec"><p class="result-sec-label">Probabilidade por causa</p><div class="chips">${r.probabilidades.map(p=>`<span class="chip">${p}</span>`).join('')}</div></div>` : '';
+  const exHTML = r.exercicios ? `<div class="result-sec"><p class="result-sec-label">Exercícios de alívio recomendados</p><ul style="color:var(--t2);padding-left:18px;font-size:14px">${r.exercicios.map(e=>`<li style="margin-bottom:6px">${e}</li>`).join('')}</ul></div>` : '';
+  const medHTML = r.medicamentos ? `<div class="result-sec"><p class="result-sec-label">Medicamentos de venda livre</p><div class="chips">${r.medicamentos.map(m=>`<span class="chip">${m}</span>`).join('')}</div></div>` : '';
+  const habitoHTML = r.estilo_vida ? `<div class="result-sec"><p class="result-sec-label">Hábito para prevenir recorrência</p><p class="result-text">🌱 ${r.estilo_vida}</p></div>` : '';
+
+  document.getElementById('resBody').innerHTML = `
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.3);border-radius:100px;padding:4px 12px;font-size:11px;color:#d4a843;letter-spacing:.05em;text-transform:uppercase;font-weight:500;margin-bottom:18px">✦ Análise Pro Completa Desbloqueada</div>
+    <div class="result-sec"><p class="result-sec-label">Visão geral detalhada</p><p class="result-text">${r.resumo}</p></div>
+    <div class="result-sec"><p class="result-sec-label">Causas mais comuns</p><div class="chips">${(r.causas_comuns||[]).map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>
+    ${probHTML}
+    <div class="result-sec"><p class="result-sec-label">Dica de alívio imediato</p><p class="result-text">💡 ${r.dica_imediata}</p></div>
+    ${exHTML}
+    ${medHTML}
+    ${habitoHTML}
+    <div class="result-sec"><p class="result-sec-label" style="color:${urgC}">Quando buscar médico</p><p class="result-text" style="color:${urgC}">${r.urgencia_texto}</p><div class="chips" style="margin-top:10px">${(r.sinais_atencao||[]).map(s=>`<span class="chip chip-red">⚠ ${s}</span>`).join('')}</div></div>`;
+  document.getElementById('resultWrap').scrollIntoView({behavior:'smooth'});
+}
+function showFallback() {
+  document.getElementById('loadWrap').classList.remove('show');
+  document.getElementById('resultWrap').classList.add('show');
+  document.getElementById('resTitle').textContent = `Dor em ${selPart_} · Intensidade ${selInt_}/10`;
+  document.getElementById('resSub').textContent = 'Análise baseada em padrões comuns';
+  document.getElementById('resBody').innerHTML = `<div class="result-sec"><p class="result-sec-label">Visão geral</p><p class="result-text">Dor na região de ${selPart_} com intensidade ${selInt_}/10 pode ter diversas origens. As causas mais comuns incluem tensão muscular, postura inadequada, esforço repetitivo ou inflamação localizada.</p></div><div class="result-sec"><p class="result-sec-label">Dica imediata</p><p class="result-text">💡 Aplique gelo nos primeiros 20 minutos se for dor aguda, ou calor se for tensão muscular crônica.</p></div><div class="result-sec"><p class="result-sec-label">Quando buscar médico</p><p class="result-text">Procure atendimento se a dor piorar, durar mais de 3 dias ou vier com febre ou formigamento.</p></div>`;
+}
+function resetApp() {
+  selPart_=null; selInt_=null; photoB64=null;
+  document.querySelectorAll('.body-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.int-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('intDesc').textContent='Selecione de 1 (leve) a 10 (insuportável)';
+  document.getElementById('block-int').style.display='none';
+  document.getElementById('block-photo').style.display='none';
+  document.getElementById('prevWrap').style.display='none';
+  document.getElementById('analyzeWrap').classList.remove('show');
+  document.getElementById('loadWrap').classList.remove('show');
+  document.getElementById('resultWrap').classList.remove('show');
+  document.getElementById('resBody').innerHTML='';
+  ['ls1','ls2','ls3','ls4'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById('cam-in').value='';
+  document.getElementById('file-in').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
